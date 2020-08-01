@@ -17,23 +17,27 @@ class Player:
     def getname(self):
         return self.name
 
-    def decide(self, handranking):
+    def decide(self, handranking, callamount):
         # ai do something with handranking
         rankings = []
+        raiseamount = 0
         for hand in handranking:
             rankings.append(hand[0] * hand[1])
 
         if self.isHuman:
             decision = int(input("call (0), raise (1) or fold (2)?"))
+            if decision == 1:
+                raiseamount = int(input("raise by which amount?"))
 
         else:
             if max(rankings) > 0:
                 decision = 0
-            elif max(rankings) > 1:
+            elif round(max(rankings) * 10) > callamount:
                 decision = 1
+                raiseamount = round(max(rankings) * 10)
             else:
                 decision = 2
-        return [max(rankings), decision]
+        return [max(rankings), decision, raiseamount]
 
     def gethandranking(self, communitycards=None): # set default value for communitycards to none
         if communitycards is None:

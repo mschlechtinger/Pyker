@@ -5,12 +5,19 @@ from pokerUtils import PokerUtils
 from board import Board
 
 
-def decide(playerdecision):
+def decide(playerdecision, player, callamount, raiseamount=0):
+    # fold
     if playerdecision == 2:
         print(player.getname() + " loses")
         exit()
-    if playerdecision == 0 or playerdecision == 1:
+    # raise
+    if playerdecision == 1:
+        print(player.getname() + " raises by " + raiseamount)
+        player.chips = player.chips - callamount + raiseamount
+    # call
+    if playerdecision == 0:
         print(player.getname() + " called")
+        player.chips = player.chips - callamount
 
 
 # init players
@@ -30,6 +37,7 @@ while True:
     smallBlindPlayer = players[(startPlayerValue + roundIndex) % len(players)]
     bigBlindPlayer = players[(startPlayerValue + roundIndex + 1) % len(players)]
     bigBlind = smallBlind * 2
+    callamount = bigBlind
 
     # set new order accordingly
     oldPlayerOrder = players
@@ -52,16 +60,12 @@ while True:
 
     # blinds and decide
     for player in players:
-
-        # call (bigBlind), raise (call + raise) or fold
-        decision = player.decide(player.gethandranking())
-        decide(decision[1])
-
+        # call, raise or fold
+        decision = player.decide(player.gethandranking(), callamount)
+        decide(decision[1], player, callamount, decision[2])
 
     """ DRAW FLOP (first 3 __cards) """
     myBoard = Board(deck)
-
-
 
     """ DRAW TURN (4th card) """
     myBoard.draw(deck)
@@ -91,4 +95,3 @@ while True:
         print("Draw between " + ' & '.join(winners))
     else:
         print(max(ranks)[1] + " wins!")
-
