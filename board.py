@@ -13,7 +13,6 @@ class Board:
         self.cards.append(deck[0])
         print("The Board shows\t" + PokerUtils.getcardname(deck[0]))
         deck.pop(0)
-        return deck
 
     def getcommunitycards(self):
         return self.cards

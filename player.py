@@ -3,40 +3,55 @@ from card import Card
 
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, name, ishuman, chips):
         self.name = name
-        self.cards = []
+        self.isHuman = ishuman
+        self.chips = chips
+        self.__cards = []
 
     def draw(self, deck):
-        self.cards.append(deck[0])
+        self.__cards.append(deck[0])
         print(self.name + " draws\t" + PokerUtils.getcardname(deck[0]))
         deck.pop(0)
-        return deck
 
-    def decide(self):
-        return 1
+    def getname(self):
+        return self.name
 
-    def gethandranking(self, communitycards):
-        mycards = self.cards + communitycards
+    def decide(self, handranking):
+        # ai do something with handranking
+        rankings = []
+        for hand in handranking:
+            rankings.append(hand[0] * hand[1])
 
-        print(mycards)
+        if self.isHuman:
+            decision = int(input("call (0), raise (1) or fold (2)?"))
+
+        else:
+            if max(rankings) > 0:
+                decision = 0
+            elif max(rankings) > 1:
+                decision = 1
+            else:
+                decision = 2
+        return [max(rankings), decision]
+
+    def gethandranking(self, communitycards=None): # set default value for communitycards to none
+        if communitycards is None:
+            communitycards = []
+        mycards = self.__cards + communitycards
+
         samecolor = False
-        if sum(mycard.color == "clubs" for mycard in mycards) >= 5 or sum(mycard.color == "diamonds" for mycard in mycards) >= 5 or sum(mycard.color == "hearts" for mycard in mycards) >= 5 or sum(mycard.color == "spades" for mycard in mycards) >= 5:
+        if sum(mycard.color == "clubs" for mycard in mycards) >= 5 or sum(
+                mycard.color == "diamonds" for mycard in mycards) >= 5 or sum(
+            mycard.color == "hearts" for mycard in mycards) >= 5 or sum(
+            mycard.color == "spades" for mycard in mycards) >= 5:
             samecolor = True
 
-        # test shit
-        mycards = [Card("clubs", 10), Card("clubs", 11), Card("clubs", 12), Card("clubs", 13), Card("clubs", 14)]
         winprobs = []
         for i in PokerUtils.getallhands():
             winprobs.append([i[1], self.comparehands(mycards, i[2:])])
 
-        print()
-        # calc how close to which one
-        # get list with all poker hand rankings and closeness like (10, "Royal Flush", 0.8,),(9, "Straight Flush", 0),
-
-        #
-        # = set(mycards) & set(somehandranking)
-
+        return winprobs
 
     def comparehands(self, hand, targethand):
         score = 0
