@@ -9,10 +9,10 @@ def decide(playerdecision, player, callamount, raiseamount=0):
     # fold
     if playerdecision == 2:
         print(player.getname() + " loses")
-        exit()
+        players.remove(player)
     # raise
     if playerdecision == 1:
-        print(player.getname() + " raises by " + raiseamount)
+        print(player.getname() + " raises by " + str(raiseamount))
         player.chips = player.chips - callamount + raiseamount
     # call
     if playerdecision == 0:
@@ -21,7 +21,7 @@ def decide(playerdecision, player, callamount, raiseamount=0):
 
 
 # init players
-p1 = Player("Alice", False, 1500)
+p1 = Player("Alice", True, 1500)
 p2 = Player("Bob", False, 1500)
 
 players = [p1, p2]
@@ -58,22 +58,56 @@ while True:
         player.draw(deck)
         player.draw(deck)
 
-    # blinds and decide
-    for player in players:
-        # call, raise or fold
-        decision = player.decide(player.gethandranking(), callamount)
-        decide(decision[1], player, callamount, decision[2])
+    # decide
+    while not all(x.hasCalled for x in players):
+        for player in players:
+            if not player.hasCalled:
+                # call, raise or fold # returns: [max(rankings), decision, raiseamount]
+                decision = player.decide(player.gethandranking(), callamount)
 
-    """ DRAW FLOP (first 3 __cards) """
+                # check if raised
+                if decision[1] == 1:
+                    # reset callstatus
+                    for x in (players[:players.index(player)] + players[players.index(player) + 1:]):
+                        x.hasCalled = False
+
+                decide(decision[1], player, callamount, decision[2])
+
+    """ DRAW FLOP (first 3 cards) """
     myBoard = Board(deck)
+
+    # decide
+    while not all(x.hasCalled for x in players):
+        for player in players:
+            if not player.hasCalled:
+                # call, raise or fold # returns: [max(rankings), decision, raiseamount]
+                decision = player.decide(player.gethandranking(), callamount)
+
+                # check if raised
+                if decision[1] == 1:
+                    # reset callstatus
+                    for x in (players[:players.index(player)] + players[players.index(player) + 1:]):
+                        x.hasCalled = False
+
+                decide(decision[1], player, callamount, decision[2])
 
     """ DRAW TURN (4th card) """
     myBoard.draw(deck)
 
     # decide
-    for player in players:
-        decision = player.decide(player.gethandranking(myBoard.getcommunitycards()))
-        decide(decision[1])
+    while not all(x.hasCalled for x in players):
+        for player in players:
+            if not player.hasCalled:
+                # call, raise or fold # returns: [max(rankings), decision, raiseamount]
+                decision = player.decide(player.gethandranking(myBoard.getcommunitycards()), callamount)
+
+                # check if raised
+                if decision[1] == 1:
+                    # reset callstatus
+                    for x in (players[:players.index(player)] + players[players.index(player) + 1:]):
+                        x.hasCalled = False
+
+                decide(decision[1], player, callamount, decision[2])
 
     """ DRAW RIVER (5th card) """
     myBoard.draw(deck)

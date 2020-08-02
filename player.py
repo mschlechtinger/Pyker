@@ -3,6 +3,8 @@ from card import Card
 
 
 class Player:
+    hasCalled = False
+
     def __init__(self, name, ishuman, chips):
         self.name = name
         self.isHuman = ishuman
@@ -28,13 +30,17 @@ class Player:
             decision = int(input("call (0), raise (1) or fold (2)?"))
             if decision == 1:
                 raiseamount = int(input("raise by which amount?"))
+            if decision != 2:
+                self.hasCalled = True
 
         else:
             if max(rankings) > 0:
                 decision = 0
+                self.hasCalled = True
             elif round(max(rankings) * 10) > callamount:
                 decision = 1
                 raiseamount = round(max(rankings) * 10)
+                self.hasCalled = True
             else:
                 decision = 2
         return [max(rankings), decision, raiseamount]
